@@ -1,0 +1,3183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Contracts</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
+
+    :root {
+      --bg: #f7f5f2;
+      --bg2: #eeeae4;
+      --surface: rgba(255, 255, 255, 0.75);
+      --surface2: rgba(255, 255, 255, 0.92);
+      --border: rgba(0, 0, 0, 0.08);
+      --border-active: rgba(180, 120, 40, 0.55);
+      --accent: #b07830;
+      --accent2: #c95050;
+      --accent3: #3a9a72;
+      --accent4: #7a6040;
+      --text: #1a1208;
+      --text-body: #3a3020;
+      --text-muted: #7a7060;
+      --text-dim: #b0a898;
+      --glow: rgba(180, 120, 40, 0.18);
+      --glow2: rgba(58, 154, 114, 0.16);
+      --glass-blur: blur(28px) saturate(160%);
+      --glass-blur-sm: blur(16px) saturate(140%);
+      --fs-xs: 11px;
+      --fs-sm: 13px;
+      --fs-base: 15px;
+      --fs-md: 17px;
+      --lh: 1.78;
+      --nav-h: 60px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: auto;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-body);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: var(--fs-base);
+      line-height: var(--lh);
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-top: calc(var(--nav-h) + 24px);
+    }
+
+    /* ── BACKGROUND ORBS ── */
+    .orb {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+      border-radius: 50%;
+      filter: blur(120px);
+    }
+
+    .orb-1 {
+      width: 800px;
+      height: 800px;
+      top: -180px;
+      left: -200px;
+      background: radial-gradient(ellipse, rgba(210, 140, 40, 0.38) 0%, rgba(220, 160, 60, 0.12) 45%, transparent 72%);
+    }
+
+    .orb-2 {
+      width: 700px;
+      height: 700px;
+      top: -100px;
+      right: -180px;
+      background: radial-gradient(ellipse, rgba(58, 154, 114, 0.28) 0%, rgba(80, 170, 130, 0.09) 45%, transparent 70%);
+    }
+
+    .orb-3 {
+      width: 600px;
+      height: 600px;
+      bottom: 8vh;
+      left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(ellipse, rgba(180, 80, 120, 0.20) 0%, rgba(160, 60, 100, 0.07) 45%, transparent 70%);
+    }
+
+    .orb-4 {
+      width: 500px;
+      height: 500px;
+      top: 40vh;
+      left: -100px;
+      background: radial-gradient(ellipse, rgba(60, 120, 200, 0.16) 0%, transparent 68%);
+    }
+
+    .orb-5 {
+      width: 450px;
+      height: 450px;
+      top: 60vh;
+      right: -80px;
+      background: radial-gradient(ellipse, rgba(220, 140, 40, 0.22) 0%, transparent 68%);
+    }
+
+    /* subtle grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(180, 120, 40, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(180, 120, 40, 0.04) 1px, transparent 1px);
+      background-size: 44px 44px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 72px 0 48px;
+      text-align: center;
+      position: relative;
+    }
+
+    .header-tag {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--fs-xs);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid rgba(180, 120, 40, 0.28);
+      background: rgba(180, 120, 40, 0.07);
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+      padding: 6px 18px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(44px, 7vw, 80px);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      margin-bottom: 22px;
+    }
+
+    h1 .line1 {
+      display: block;
+      color: var(--text);
+    }
+
+    h1 .line2 {
+      display: block;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-desc {
+      max-width: 580px;
+      margin: 0 auto 44px;
+      color: var(--text-body);
+      font-size: var(--fs-md);
+      line-height: 1.75;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── MEMBERS ── */
+    .members-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--fs-xs);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .members-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 28px;
+      margin: 0 auto 44px;
+    }
+
+    .member-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .member-avatar {
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      padding: 3px;
+      background: rgba(180, 120, 40, 0.25);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
+      transition: transform .28s, box-shadow .28s;
+    }
+
+    .member-avatar:hover {
+      transform: translateY(-5px) scale(1.07);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
+    }
+
+    .member-avatar-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.1rem;
+    }
+
+    .member-name {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: var(--fs-sm);
+      letter-spacing: 0.02em;
+      color: var(--text-body);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .member-id {
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+
+    .member-item:hover .member-name {
+      color: var(--accent3);
+    }
+
+    /* ── FLOATING TOP NAV ── */
+    .top-nav {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(calc(-100% - 28px));
+      width: min(calc(100vw - 40px), 1020px);
+      height: var(--nav-h);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 10px;
+      background: rgba(255, 253, 249, 0.62);
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 18px;
+      box-shadow:
+        0 4px 28px rgba(0, 0, 0, 0.12),
+        0 1px 4px rgba(0, 0, 0, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.82);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    }
+    .top-nav.nav-visible {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* subtle inner amber shimmer line at top */
+    .top-nav::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 20px; right: 20px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(180, 120, 40, 0.45), transparent);
+      border-radius: 0 0 1px 1px;
+    }
+
+    /* remove the old bottom line pseudo */
+    .top-nav::after { display: none; }
+
+    .nav-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      margin-right: 8px;
+      padding-right: 16px;
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .nav-pills {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .nav-pills::-webkit-scrollbar { display: none; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 13px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      user-select: none;
+      -webkit-user-select: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .nav-item:hover {
+      background: rgba(180, 120, 40, 0.08);
+      border-color: rgba(180, 120, 40, 0.18);
+    }
+
+    .nav-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: rgba(0, 0, 0, 0.06);
+      color: var(--text-dim);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .nav-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      line-height: 1;
+      transition: color 0.2s;
+    }
+
+    .nav-item:hover .nav-label { color: var(--text-body); }
+    .nav-item:hover .nav-num {
+      background: rgba(180, 120, 40, 0.14);
+      color: var(--accent);
+    }
+
+    /* active state */
+    .nav-item.active {
+      background: rgba(180, 120, 40, 0.12);
+      border-color: rgba(180, 120, 40, 0.32);
+    }
+    .nav-item.active .nav-num {
+      background: var(--accent);
+      color: #fff;
+    }
+    .nav-item.active .nav-label {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* done state */
+    .nav-item.done .nav-num {
+      background: rgba(58, 154, 114, 0.14);
+      color: var(--accent3);
+    }
+    .nav-item.done .nav-label { color: var(--text-dim); }
+
+    /* nav-active-pulse is defined in the looping animations block below */
+
+    /* ── MOBILE NAV TOGGLE ── */
+    .mob-nav-toggle {
+      display: none;
+      position: fixed;
+      top: 14px;
+      right: 20px;
+      z-index: 200;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255, 253, 249, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(180, 120, 40, 0.20);
+      color: var(--accent);
+      font-size: 16px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10), inset 0 1px 0 rgba(255,255,255,0.90);
+      transition: background 0.2s, border-color 0.2s, opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .mob-nav-toggle:hover { background: rgba(180, 120, 40, 0.08); border-color: rgba(180, 120, 40, 0.35); }
+
+    /* ── LAYOUT ── */
+    .page-wrap {
+      min-height: 100vh;
+    }
+
+    /* mobile overlay when nav is open */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+    .sidebar-overlay.visible { display: block; }
+
+    /* mobile: floating nav expands downward as a pill drawer */
+    @media (max-width: 780px) {
+      .top-nav {
+        flex-direction: column;
+        height: auto;
+        padding: 12px 16px;
+        top: 14px;
+        transform: translateX(-50%) translateY(calc(-100% - 28px));
+        transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.25s ease;
+        opacity: 0;
+      }
+      /* on mobile, nav-visible just makes the toggle button visible; open state handles nav itself */
+      .top-nav.nav-visible { transform: translateX(-50%) translateY(calc(-100% - 28px)); opacity: 0; }
+      .top-nav.open {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+      .nav-pills {
+        flex-wrap: wrap;
+        justify-content: center;
+        overflow: visible;
+      }
+      body { padding-top: 80px; }
+      .mob-nav-toggle { display: flex; }
+    }
+
+    /* ── SECTION ── */
+    .section {
+      margin: 56px 0;
+      opacity: 0;
+      transform: translateY(32px);
+      transition: all 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+
+    .section-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      flex-shrink: 0;
+      padding-top: 6px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 29px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    /* ── GLASS CARD ── */
+    .card {
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid rgba(255, 255, 255, 0.70);
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 4px 28px rgba(0, 0, 0, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+      transition: box-shadow 0.3s, border-color 0.3s;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(180, 120, 40, 0.5), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card:hover {
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.13), inset 0 1px 0 rgba(255, 255, 255, 0.90);
+      border-color: rgba(180, 120, 40, 0.30);
+    }
+
+    .card-body {
+      padding: 30px;
+    }
+
+    /* ── DEMO AREA ── */
+    .demo-area {
+      background: rgba(255, 255, 255, 0.35);
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: 14px;
+      padding: 24px;
+      margin-top: 20px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.70);
+    }
+
+    .demo-label {
+      font-size: var(--fs-xs);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+
+    /* ── GLASS BUTTON ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 10px;
+      border: 1px solid rgba(212, 175, 97, 0.35);
+      background: rgba(212, 175, 97, 0.10);
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+      color: var(--accent);
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: var(--fs-xs);
+      letter-spacing: 0.07em;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .btn:hover {
+      background: rgba(212, 175, 97, 0.18);
+      box-shadow: 0 0 20px var(--glow), 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-green {
+      border-color: rgba(126, 200, 160, 0.35);
+      background: rgba(126, 200, 160, 0.08);
+      color: var(--accent3);
+    }
+
+    .btn-green:hover {
+      background: rgba(126, 200, 160, 0.15);
+      box-shadow: 0 0 20px var(--glow2), 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-red {
+      border-color: rgba(255, 107, 107, 0.35);
+      background: rgba(255, 107, 107, 0.08);
+      color: var(--accent2);
+    }
+
+    .btn-red:hover {
+      background: rgba(255, 107, 107, 0.15);
+      box-shadow: 0 0 20px rgba(255, 107, 107, 0.2);
+    }
+
+    /* ── BADGE ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: var(--fs-xs);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.04em;
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+    }
+
+    .badge-valid {
+      background: rgba(126, 200, 160, 0.12);
+      border: 1px solid rgba(126, 200, 160, 0.3);
+      color: var(--accent3);
+    }
+
+    .badge-invalid {
+      background: rgba(255, 107, 107, 0.12);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      color: var(--accent2);
+    }
+
+    .badge-pending {
+      background: rgba(212, 175, 97, 0.10);
+      border: 1px solid rgba(212, 175, 97, 0.25);
+      color: var(--text-muted);
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: .5;
+        transform: scale(.8)
+      }
+    }
+
+    .badge-dot.pulse {
+      animation: pulse 1.5s infinite;
+    }
+
+    /* ── GLASS CODE BLOCK ── */
+    .code-block {
+      background: #1e1a16;
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 22px 26px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      line-height: 1.85;
+      overflow-x: auto;
+      margin: 16px 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      white-space: pre;
+      color: #d4cfc8;
+    }
+
+    .code-block .kw { color: #d4a84a; }
+    .code-block .val { color: #7ec8a0; }
+    .code-block .cm { color: #7a8a6a; }
+    .code-block .fn { color: #c4a882; }
+    .code-block .str { color: #e07070; }
+    .code-block .type { color: #7dd8d8; }
+    .code-block .num { color: #c4a0d0; }
+
+    /* ── TWO-COL / THREE-COL ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    @media (max-width:600px) {
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    @media (max-width:700px) {
+      .three-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── GLASS COL-CARD ── */
+    .col-card {
+      background: rgba(255, 255, 255, 0.42);
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+      border: 1px solid rgba(255, 255, 255, 0.68);
+      border-radius: 14px;
+      padding: 20px;
+      transition: border-color .25s, box-shadow .25s;
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    }
+
+    .col-card:hover {
+      border-color: rgba(180, 120, 40, 0.35);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.11), inset 0 1px 0 rgba(255, 255, 255, 0.80);
+    }
+
+    /* stagger animation for col-cards */
+    .three-col .col-card:nth-child(1) {
+      animation-delay: 0.05s;
+    }
+
+    .three-col .col-card:nth-child(2) {
+      animation-delay: 0.12s;
+    }
+
+    .three-col .col-card:nth-child(3) {
+      animation-delay: 0.19s;
+    }
+
+    .two-col .col-card:nth-child(1) {
+      animation-delay: 0.05s;
+    }
+
+    .two-col .col-card:nth-child(2) {
+      animation-delay: 0.12s;
+    }
+
+    .col-card-title {
+      font-size: var(--fs-xs);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-dim);
+      font-weight: 700;
+    }
+
+    .col-card-title.accent {
+      color: var(--accent);
+    }
+
+    .col-card-title.green {
+      color: var(--accent3);
+    }
+
+    .col-card-title.red {
+      color: var(--accent2);
+    }
+
+    .col-card-title.gold {
+      color: var(--accent4);
+    }
+
+    .col-card p {
+      font-size: var(--fs-sm);
+      color: var(--text-body);
+      line-height: var(--lh);
+    }
+
+    /* ── GLASS CALLOUT ── */
+    .callout {
+      display: flex;
+      gap: 14px;
+      padding: 18px 22px;
+      border-radius: 14px;
+      margin: 16px 0;
+      font-size: var(--fs-sm);
+      line-height: var(--lh);
+      color: var(--text-body);
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.70);
+    }
+
+    .callout-info {
+      background: rgba(180, 120, 40, 0.07);
+      border: 1px solid rgba(180, 120, 40, 0.18);
+    }
+
+    .callout-warn {
+      background: rgba(200, 130, 40, 0.07);
+      border: 1px solid rgba(200, 130, 40, 0.18);
+    }
+
+    .callout-success {
+      background: rgba(58, 154, 114, 0.07);
+      border: 1px solid rgba(58, 154, 114, 0.18);
+    }
+
+    .callout-danger {
+      background: rgba(201, 80, 80, 0.07);
+      border: 1px solid rgba(201, 80, 80, 0.18);
+    }
+
+    .callout-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── GLASS TABLE ── */
+    .prop-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    .prop-table thead tr {
+      background: rgba(180, 120, 40, 0.07);
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+    }
+
+    .prop-table th {
+      text-align: left;
+      padding: 13px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .prop-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+      line-height: var(--lh);
+      color: var(--text-body);
+      font-size: var(--fs-sm);
+    }
+
+    .prop-table tr:hover td {
+      background: rgba(180, 120, 40, 0.04);
+    }
+
+    .prop-table tr:nth-child(even) td {
+      background: rgba(0, 0, 0, 0.018);
+    }
+
+    .prop-table td:first-child {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* ── EQUATION ── */
+    .equation {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      color: var(--text);
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.70);
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 10px 10px 0;
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      border-left: 3px solid var(--accent);
+      margin: 14px 0;
+      letter-spacing: 0.04em;
+    }
+
+    .equation .result {
+      color: var(--accent3);
+    }
+
+    .equation .op {
+      color: var(--text-muted);
+    }
+
+    /* ── TIMELINE ── */
+    .timeline {
+      position: relative;
+      padding-left: 32px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: rgba(180, 120, 40, 0.18);
+      box-shadow: none;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 30px;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -28px;
+      top: 6px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg);
+      box-shadow: 0 0 8px var(--glow), 0 0 3px var(--accent);
+    }
+
+    .timeline-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .timeline-year {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--fs-xs);
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .timeline-desc {
+      font-size: var(--fs-sm);
+      color: var(--text-body);
+      line-height: var(--lh);
+    }
+
+    /* ── FLOW DIAGRAM ── */
+    .flow-horiz {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      overflow-x: auto;
+      padding: 8px 0;
+      margin: 20px 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .flow-node-h {
+      flex-shrink: 0;
+      min-width: 110px;
+      background: rgba(255, 255, 255, 0.42);
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+      border: 1px solid rgba(255, 255, 255, 0.68);
+      border-radius: 12px;
+      padding: 14px 12px;
+      text-align: center;
+      transition: border-color .25s, box-shadow .25s;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    }
+
+    .flow-node-h:hover {
+      border-color: rgba(180, 120, 40, 0.35);
+      box-shadow: 0 0 14px var(--glow);
+    }
+
+    .flow-node-h .fn-icon {
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+    }
+
+    .flow-node-h .fn-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-body);
+      line-height: 1.4;
+    }
+
+    .flow-node-h .fn-sub {
+      font-size: 10px;
+      color: var(--accent);
+      margin-top: 3px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .flow-sep {
+      flex-shrink: 0;
+      padding: 0 8px;
+      color: var(--text-dim);
+      font-size: 18px;
+    }
+
+    /* ── LIFECYCLE INTERACTIVE ── */
+    .lifecycle {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 20px;
+    }
+
+    .lc-step {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      cursor: pointer;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      transition: border-color .25s, box-shadow .25s;
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+    }
+
+    .lc-step:hover {
+      border-color: rgba(180, 120, 40, 0.28);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+    }
+
+    .lc-step.open {
+      border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(180, 120, 40, 0.14);
+    }
+    .lc-step.open .lc-badge {
+      background: rgba(180, 120, 40, 0.16);
+      color: var(--accent);
+      border-right-color: rgba(180, 120, 40, 0.35);
+    }
+
+    .lc-badge {
+      width: 48px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(180, 120, 40, 0.10);
+      border-right: 2px solid rgba(180, 120, 40, 0.20);
+    }
+
+    .lc-body {
+      flex: 1;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.38);
+    }
+
+    .lc-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .lc-detail {
+      font-size: var(--fs-sm);
+      color: var(--text-body);
+      margin-top: 10px;
+      line-height: var(--lh);
+    }
+
+    .lc-step.open .lc-detail {
+      display: block;
+    }
+
+    .lc-arrow {
+      margin-left: auto;
+      align-self: center;
+      color: var(--text-dim);
+      padding-right: 16px;
+      transition: transform .2s;
+    }
+
+    .lc-step.open .lc-arrow {
+      transform: rotate(90deg);
+    }
+
+    /* ── ESCROW DEMO ── */
+    /* ── BLOCKCHAIN CHAIN ── */
+    .chain-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      overflow-x: auto;
+      padding: 16px 0 12px;
+      scrollbar-width: none;
+    }
+    .chain-row::-webkit-scrollbar { display: none; }
+
+    .chain-block {
+      flex-shrink: 0;
+      width: 160px;
+      background: rgba(255,255,255,0.55);
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      position: relative;
+      transition: box-shadow 0.3s, border-color 0.3s;
+    }
+    .chain-block.genesis {
+      border-color: rgba(180,120,40,0.30);
+      background: rgba(180,120,40,0.06);
+    }
+    .chain-block.pending {
+      border-color: rgba(180,120,40,0.40);
+      background: rgba(255,255,255,0.45);
+      animation: block-pending 0.8s ease-in-out infinite alternate;
+    }
+    .chain-block.confirmed {
+      border-color: rgba(58,154,114,0.40);
+      background: rgba(58,154,114,0.06);
+      animation: block-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .chain-block.refunded {
+      border-color: rgba(201,80,80,0.35);
+      background: rgba(201,80,80,0.05);
+      animation: block-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes block-pending {
+      from { box-shadow: 0 0 0 0 rgba(180,120,40,0.0); }
+      to   { box-shadow: 0 0 14px 2px rgba(180,120,40,0.22); }
+    }
+    @keyframes block-pop {
+      from { transform: scale(0.85); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
+    }
+
+    .block-num {
+      color: var(--text-muted);
+      font-size: 10px;
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+    }
+    .block-action {
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--text);
+      margin-bottom: 6px;
+      font-family: 'Inter', sans-serif;
+    }
+    .block-hash {
+      color: var(--text-dim);
+      font-size: 10px;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .block-gas {
+      color: var(--text-muted);
+      font-size: 10px;
+    }
+    .block-status {
+      font-size: 10px;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+    .block-status.ok   { color: var(--accent3); }
+    .block-status.wait { color: var(--accent);  }
+    .block-status.ref  { color: var(--accent2); }
+
+    /* arrow connector between blocks */
+    .chain-arrow {
+      flex-shrink: 0;
+      width: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dim);
+      font-size: 16px;
+      position: relative;
+    }
+    .chain-arrow::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 4px; right: 4px;
+      height: 1px;
+      background: rgba(0,0,0,0.12);
+      transform: translateY(-50%);
+    }
+
+    /* ── ESCROW GRID ── */
+    .escrow-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0;
+      align-items: start;
+      margin: 20px 0;
+    }
+
+    .escrow-party {
+      background: rgba(255, 255, 255, 0.40);
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    }
+
+    .escrow-party-icon {
+      font-size: 2.4rem;
+      margin-bottom: 8px;
+    }
+
+    .escrow-party-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--fs-xs);
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .escrow-middle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      gap: 10px;
+    }
+
+    .escrow-contract {
+      background: rgba(180, 120, 40, 0.07);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid rgba(180, 120, 40, 0.28);
+      border-radius: 14px;
+      padding: 16px 20px;
+      text-align: center;
+      width: 100%;
+      box-shadow: 0 0 20px rgba(180, 120, 40, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.60);
+    }
+
+    .escrow-contract-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .escrow-amount {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--accent3);
+    }
+
+    .escrow-status-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    .flow-vert {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin: 16px 0;
+    }
+
+    .flow-vert-box {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.38);
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .flow-vert-box.active-step {
+      border-color: rgba(58, 154, 114, 0.30);
+      background: rgba(58, 154, 114, 0.06);
+    }
+
+    .flow-vert-arrow {
+      color: var(--text-dim);
+      font-size: 16px;
+    }
+
+    /* ── SLIDER ── */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 12px 0;
+    }
+
+    .slider-label {
+      font-size: var(--fs-sm);
+      font-weight: 500;
+      color: var(--text-body);
+      min-width: 170px;
+    }
+
+    input[type=range] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 4px;
+      background: rgba(0, 0, 0, 0.10);
+      border-radius: 2px;
+      outline: none;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid rgba(247, 245, 242, 0.9);
+      box-shadow: 0 0 8px var(--glow), 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .slider-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--fs-sm);
+      color: var(--accent);
+      min-width: 48px;
+      text-align: right;
+    }
+
+    /* ── GAS METER ── */
+    /* ── USE-CASE GRID ── */
+    .uc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    @media(max-width:640px) {
+      .uc-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .uc-card {
+      background: rgba(255, 255, 255, 0.42);
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+      border: 1px solid rgba(255, 255, 255, 0.68);
+      border-radius: 14px;
+      padding: 20px 16px;
+      text-align: center;
+      cursor: default;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    }
+
+    .uc-card:hover {
+      border-color: rgba(180, 120, 40, 0.30);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(180, 120, 40, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.90);
+    }
+
+    /* stagger animation for uc-cards */
+    .uc-card:nth-child(1) {
+      transition-delay: 0.03s;
+    }
+
+    .uc-card:nth-child(2) {
+      transition-delay: 0.07s;
+    }
+
+    .uc-card:nth-child(3) {
+      transition-delay: 0.11s;
+    }
+
+    .uc-card:nth-child(4) {
+      transition-delay: 0.15s;
+    }
+
+    .uc-card:nth-child(5) {
+      transition-delay: 0.19s;
+    }
+
+    .uc-card:nth-child(6) {
+      transition-delay: 0.23s;
+    }
+
+    .uc-card:nth-child(7) {
+      transition-delay: 0.27s;
+    }
+
+    .uc-card:nth-child(8) {
+      transition-delay: 0.31s;
+    }
+
+    .uc-card:nth-child(9) {
+      transition-delay: 0.35s;
+    }
+
+    .uc-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .uc-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 7px;
+    }
+
+    .uc-desc {
+      font-size: var(--fs-xs);
+      font-weight: 500;
+      color: var(--text-body);
+      line-height: 1.65;
+    }
+
+    /* ── STAT ROW ── */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    @media(max-width:600px) {
+      .stat-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-tile {
+      background: rgba(255, 255, 255, 0.42);
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+      border: 1px solid rgba(255, 255, 255, 0.68);
+      border-radius: 14px;
+      padding: 20px 14px;
+      text-align: center;
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .stat-tile:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.11), inset 0 1px 0 rgba(255, 255, 255, 0.80);
+    }
+
+    .stat-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--accent);
+      filter: drop-shadow(0 0 6px rgba(180, 120, 40, 0.22));
+    }
+
+    .stat-lbl {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-top: 6px;
+      line-height: 1.45;
+    }
+
+    /* ── TAG ── */
+    .tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: var(--fs-xs);
+      letter-spacing: 0.03em;
+      margin: 3px;
+      backdrop-filter: var(--glass-blur-sm);
+      -webkit-backdrop-filter: var(--glass-blur-sm);
+    }
+
+    .tag-blue {
+      background: rgba(212, 175, 97, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(212, 175, 97, 0.25);
+    }
+
+    .tag-green {
+      background: rgba(126, 200, 160, 0.10);
+      color: var(--accent3);
+      border: 1px solid rgba(126, 200, 160, 0.25);
+    }
+
+    .tag-gold {
+      background: rgba(196, 168, 130, 0.12);
+      color: var(--accent4);
+      border: 1px solid rgba(196, 168, 130, 0.25);
+    }
+
+    .tag-red {
+      background: rgba(255, 107, 107, 0.10);
+      color: var(--accent2);
+      border: 1px solid rgba(255, 107, 107, 0.25);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 56px 0 48px;
+      text-align: center;
+      border-top: 1px solid rgba(0, 0, 0, 0.07);
+      margin-top: 90px;
+    }
+
+    footer .big {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 5vw, 58px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 14px;
+      filter: drop-shadow(0 0 12px rgba(180, 120, 40, 0.18));
+    }
+
+    /* ── GLASS FOOTER MEMBER CARDS ── */
+    .footer-member-card {
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid rgba(255, 255, 255, 0.68);
+      border-radius: 16px;
+      padding: 18px 24px;
+      text-align: center;
+      min-width: 180px;
+      box-shadow: 0 4px 22px rgba(0, 0, 0, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.80);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .footer-member-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.13), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+      border-color: rgba(180, 120, 40, 0.28);
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(212, 175, 97, 0.3);
+      border-radius: 3px;
+    }
+
+    /* ════════════════════════════════════════════════════
+       ANIMATION KEYFRAMES
+    ════════════════════════════════════════════════════ */
+
+    /* Orb float */
+    @keyframes orb-float-1 {
+      0%   { transform: translate(0,0) scale(1); }
+      33%  { transform: translate(40px,30px) scale(1.06); }
+      66%  { transform: translate(-20px,50px) scale(0.97); }
+      100% { transform: translate(0,0) scale(1); }
+    }
+    @keyframes orb-float-2 {
+      0%   { transform: translate(0,0) scale(1); }
+      40%  { transform: translate(-50px,20px) scale(1.04); }
+      70%  { transform: translate(20px,-30px) scale(0.96); }
+      100% { transform: translate(0,0) scale(1); }
+    }
+    @keyframes orb-float-3 {
+      0%   { transform: translateX(-50%) scale(1); }
+      50%  { transform: translateX(-50%) translateY(-40px) scale(1.05); }
+      100% { transform: translateX(-50%) scale(1); }
+    }
+
+    /* General entrance */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes pop-in {
+      0%   { opacity: 0; transform: scale(0.65) translateY(16px); }
+      70%  { transform: scale(1.06) translateY(-4px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes slide-left {
+      from { opacity: 0; transform: translateX(-28px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slide-right {
+      from { opacity: 0; transform: translateX(28px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Code shimmer sweep */
+    @keyframes code-shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    /* Active pill glow pulse */
+    @keyframes pill-glow {
+      0%,100% { box-shadow: 0 0 12px rgba(212,175,97,0.15); }
+      50%      { box-shadow: 0 0 24px rgba(212,175,97,0.42), 0 0 8px rgba(212,175,97,0.2); }
+    }
+
+    /* Stat tile reveal */
+    @keyframes stat-reveal {
+      from { opacity: 0; transform: translateY(20px) scale(0.85); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Button ripple */
+    @keyframes ripple {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* Escrow amount flash */
+    @keyframes amount-flash {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    /* ════════════════════════════════════════════════════
+       ORB DRIFT
+    ════════════════════════════════════════════════════ */
+    .orb-1 { animation: orb-float-1 22s ease-in-out infinite; }
+    .orb-2 { animation: orb-float-2 28s ease-in-out infinite; }
+    .orb-3 { animation: orb-float-3 18s ease-in-out infinite; }
+
+    /* ════════════════════════════════════════════════════
+       HERO STAGGERED ENTRANCE
+    ════════════════════════════════════════════════════ */
+    .header-tag  { animation: fade-up 0.7s cubic-bezier(0.16,1,0.3,1) 0.15s both, tag-border-glow 4s ease-in-out 1.5s infinite; }
+    h1 .line1    { animation: fade-up 0.7s cubic-bezier(0.16,1,0.3,1) 0.30s both; }
+    h1 .line2    { animation: fade-up 0.7s cubic-bezier(0.16,1,0.3,1) 0.45s both, hue-drift 10s ease-in-out 2s infinite; }
+    .header-desc { animation: fade-up 0.7s cubic-bezier(0.16,1,0.3,1) 0.60s both; }
+    .members-label { animation: fade-in 0.5s ease 0.80s both; }
+    .member-item:nth-child(1) { animation: pop-in 0.65s cubic-bezier(0.34,1.56,0.64,1) 0.90s both; }
+    .member-item:nth-child(2) { animation: pop-in 0.65s cubic-bezier(0.34,1.56,0.64,1) 1.05s both; }
+    .member-item:nth-child(3) { animation: pop-in 0.65s cubic-bezier(0.34,1.56,0.64,1) 1.20s both; }
+    .members-row + div > .tag:nth-child(1) { animation: fade-up 0.4s ease 1.30s both; }
+    .members-row + div > .tag:nth-child(2) { animation: fade-up 0.4s ease 1.38s both; }
+    .members-row + div > .tag:nth-child(3) { animation: fade-up 0.4s ease 1.46s both; }
+    .members-row + div > .tag:nth-child(4) { animation: fade-up 0.4s ease 1.54s both; }
+    .members-row + div > .tag:nth-child(5) { animation: fade-up 0.4s ease 1.62s both; }
+    .members-row + div > .tag:nth-child(6) { animation: fade-up 0.4s ease 1.70s both; }
+
+    /* ════════════════════════════════════════════════════
+       SECTION CHILD STAGGER (fires when .visible is added)
+    ════════════════════════════════════════════════════ */
+
+    /* Section header + main card */
+    .section.visible .section-header {
+      animation: fade-up 0.5s cubic-bezier(0.16,1,0.3,1) 0s both;
+    }
+    .section.visible .card {
+      animation: fade-up 0.55s cubic-bezier(0.16,1,0.3,1) 0.08s both;
+    }
+
+    /* Timeline items slide from left */
+    .section.visible .timeline-item {
+      animation: slide-left 0.55s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .section.visible .timeline-item:nth-child(1) { animation-delay: 0.05s; }
+    .section.visible .timeline-item:nth-child(2) { animation-delay: 0.13s; }
+    .section.visible .timeline-item:nth-child(3) { animation-delay: 0.21s; }
+    .section.visible .timeline-item:nth-child(4) { animation-delay: 0.29s; }
+    .section.visible .timeline-item:nth-child(5) { animation-delay: 0.37s; }
+    .section.visible .timeline-item:nth-child(6) { animation-delay: 0.45s; }
+    .section.visible .timeline-item:nth-child(7) { animation-delay: 0.53s; }
+
+    /* Flow nodes sequential reveal */
+    .section.visible .flow-node-h {
+      animation: fade-up 0.45s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .section.visible .flow-node-h:nth-child(1)  { animation-delay: 0.05s; }
+    .section.visible .flow-node-h:nth-child(3)  { animation-delay: 0.15s; }
+    .section.visible .flow-node-h:nth-child(5)  { animation-delay: 0.25s; }
+    .section.visible .flow-node-h:nth-child(7)  { animation-delay: 0.35s; }
+    .section.visible .flow-node-h:nth-child(9)  { animation-delay: 0.45s; }
+    .section.visible .flow-node-h:nth-child(11) { animation-delay: 0.55s; }
+
+    /* col-cards */
+    .section.visible .col-card {
+      animation: fade-up 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .section.visible .three-col .col-card:nth-child(1) { animation-delay: 0.08s; }
+    .section.visible .three-col .col-card:nth-child(2) { animation-delay: 0.16s; }
+    .section.visible .three-col .col-card:nth-child(3) { animation-delay: 0.24s; }
+    .section.visible .two-col .col-card:nth-child(1)   { animation-delay: 0.08s; }
+    .section.visible .two-col .col-card:nth-child(2)   { animation-delay: 0.18s; }
+
+    /* use-case cards pop in */
+    .section.visible .uc-card {
+      animation: pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .section.visible .uc-card:nth-child(1) { animation-delay: 0.04s; }
+    .section.visible .uc-card:nth-child(2) { animation-delay: 0.10s; }
+    .section.visible .uc-card:nth-child(3) { animation-delay: 0.16s; }
+    .section.visible .uc-card:nth-child(4) { animation-delay: 0.22s; }
+    .section.visible .uc-card:nth-child(5) { animation-delay: 0.28s; }
+    .section.visible .uc-card:nth-child(6) { animation-delay: 0.34s; }
+    .section.visible .uc-card:nth-child(7) { animation-delay: 0.40s; }
+    .section.visible .uc-card:nth-child(8) { animation-delay: 0.46s; }
+    .section.visible .uc-card:nth-child(9) { animation-delay: 0.52s; }
+
+    /* stat tiles */
+    .section.visible .stat-tile {
+      animation: stat-reveal 0.55s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .section.visible .stat-tile:nth-child(1) { animation-delay: 0.06s; }
+    .section.visible .stat-tile:nth-child(2) { animation-delay: 0.14s; }
+    .section.visible .stat-tile:nth-child(3) { animation-delay: 0.22s; }
+    .section.visible .stat-tile:nth-child(4) { animation-delay: 0.30s; }
+
+    /* table rows */
+    .section.visible .prop-table tbody tr {
+      animation: slide-left 0.4s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .section.visible .prop-table tbody tr:nth-child(1) { animation-delay: 0.04s; }
+    .section.visible .prop-table tbody tr:nth-child(2) { animation-delay: 0.09s; }
+    .section.visible .prop-table tbody tr:nth-child(3) { animation-delay: 0.14s; }
+    .section.visible .prop-table tbody tr:nth-child(4) { animation-delay: 0.19s; }
+    .section.visible .prop-table tbody tr:nth-child(5) { animation-delay: 0.24s; }
+    .section.visible .prop-table tbody tr:nth-child(6) { animation-delay: 0.29s; }
+    .section.visible .prop-table tbody tr:nth-child(7) { animation-delay: 0.34s; }
+    .section.visible .prop-table tbody tr:nth-child(8) { animation-delay: 0.39s; }
+    .section.visible .prop-table tbody tr:nth-child(9) { animation-delay: 0.44s; }
+
+    /* callouts slide from right */
+    .section.visible .callout {
+      animation: slide-right 0.5s cubic-bezier(0.16,1,0.3,1) 0.12s both;
+    }
+
+    /* lifecycle steps */
+    .section.visible .lc-step {
+      animation: fade-up 0.45s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .section.visible .lc-step:nth-child(1) { animation-delay: 0.06s; }
+    .section.visible .lc-step:nth-child(2) { animation-delay: 0.13s; }
+    .section.visible .lc-step:nth-child(3) { animation-delay: 0.20s; }
+    .section.visible .lc-step:nth-child(4) { animation-delay: 0.27s; }
+    .section.visible .lc-step:nth-child(5) { animation-delay: 0.34s; }
+
+    /* ════════════════════════════════════════════════════
+       ACTIVE NAV ITEM GLOW (top-nav)
+    ════════════════════════════════════════════════════ */
+
+    /* ── CODE BLOCK SHIMMER ── */
+    .code-block { position: relative; overflow: hidden; }
+    .code-block::after {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(
+        105deg,
+        transparent 30%,
+        rgba(212,175,97,0.06) 50%,
+        transparent 70%
+      );
+      background-size: 200% 100%;
+      animation: code-shimmer 4s linear 2s infinite;
+    }
+
+    /* ════════════════════════════════════════════════════
+       LIFECYCLE ACCORDION: smooth max-height transition
+    ════════════════════════════════════════════════════ */
+    .lc-detail {
+      display: block !important;
+      max-height: 0;
+      overflow: hidden;
+      margin-top: 0;
+      opacity: 0;
+      transition: max-height 0.38s cubic-bezier(0.16,1,0.3,1),
+                  opacity 0.28s ease,
+                  margin-top 0.28s ease;
+    }
+    .lc-step.open .lc-detail {
+      max-height: 260px;
+      opacity: 1;
+      margin-top: 10px;
+    }
+
+    /* ════════════════════════════════════════════════════
+       BUTTON RIPPLE
+    ════════════════════════════════════════════════════ */
+    .btn { position: relative; overflow: hidden; }
+    .btn .ripple-el {
+      position: absolute;
+      border-radius: 50%;
+      width: 8px; height: 8px;
+      background: rgba(255,255,255,0.35);
+      transform: scale(0);
+      animation: ripple 0.55s linear forwards;
+      pointer-events: none;
+    }
+
+    /* ════════════════════════════════════════════════════
+       CARD HOVER LIFT
+    ════════════════════════════════════════════════════ */
+    .card { transition: box-shadow 0.3s, border-color 0.3s, transform 0.3s; }
+    .card:hover { transform: translateY(-2px); }
+
+    /* ════════════════════════════════════════════════════
+       ESCROW AMOUNT FLASH
+    ════════════════════════════════════════════════════ */
+    .escrow-amount.flash { animation: amount-flash 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+
+    /* ════════════════════════════════════════════════════
+       LOOPING ANIMATION KEYFRAMES
+    ════════════════════════════════════════════════════ */
+
+    @keyframes orb-pulse {
+      0%,100% { opacity: 1;   transform: scale(1); }
+      50%     { opacity: 0.5; transform: scale(1.15); }
+    }
+    @keyframes orb-pulse-alt {
+      0%,100% { opacity: 0.7; transform: scale(1); }
+      50%     { opacity: 1;   transform: scale(0.88); }
+    }
+    @keyframes float-y {
+      0%,100% { transform: translateY(0px); }
+      50%     { transform: translateY(-10px); }
+    }
+    @keyframes avatar-glow {
+      0%,100% { box-shadow: 0 2px 12px rgba(0,0,0,0.10); }
+      50%     { box-shadow: 0 2px 20px rgba(180,120,40,0.30), 0 4px 16px rgba(0,0,0,0.12); }
+    }
+    @keyframes card-glow {
+      0%,100% { box-shadow: 0 2px 14px rgba(0,0,0,0.06); }
+      50%     { box-shadow: 0 4px 32px rgba(180,120,40,0.22), 0 2px 8px rgba(0,0,0,0.08); }
+    }
+    @keyframes card-glow-green {
+      0%,100% { box-shadow: 0 2px 14px rgba(0,0,0,0.06); }
+      50%     { box-shadow: 0 4px 32px rgba(58,154,114,0.28), 0 2px 8px rgba(0,0,0,0.08); }
+    }
+    @keyframes nav-pulse {
+      0%,100% { box-shadow: 0 4px 28px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.82); }
+      50%     { box-shadow: 0 4px 40px rgba(180,120,40,0.18), 0 1px 4px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.82); }
+    }
+    @keyframes active-item-glow {
+      0%,100% { background: rgba(180,120,40,0.08);  box-shadow: none; }
+      50%     { background: rgba(180,120,40,0.18);  box-shadow: 0 0 18px rgba(180,120,40,0.25); }
+    }
+    @keyframes dot-pulse {
+      0%,100% { transform: scale(1);   opacity: 1; }
+      50%     { transform: scale(1.6); opacity: 0.5; }
+    }
+    @keyframes tag-pulse {
+      0%,100% { background: rgba(180,120,40,0.08); box-shadow: none; }
+      50%     { background: rgba(180,120,40,0.20); box-shadow: 0 0 10px rgba(180,120,40,0.25); }
+    }
+    @keyframes num-bounce {
+      0%,70%,100% { transform: scale(1); }
+      80%         { transform: scale(1.25); }
+      90%         { transform: scale(0.95); }
+    }
+    @keyframes shimmer-text {
+      0%,100% { opacity: 1; }
+      50%     { opacity: 0.55; }
+    }
+    @keyframes lc-badge-glow {
+      0%,100% { background: rgba(180,120,40,0.10); }
+      50%     { background: rgba(180,120,40,0.20); }
+    }
+    @keyframes escrow-breathe {
+      0%,100% { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+      50%     { box-shadow: 0 0 40px rgba(58,154,114,0.30), 0 4px 20px rgba(0,0,0,0.08); }
+    }
+    @keyframes amount-bounce {
+      0%,100% { transform: scale(1)    translateY(0); }
+      40%     { transform: scale(1.06) translateY(-5px); }
+      70%     { transform: scale(1.02) translateY(-2px); }
+    }
+    @keyframes gas-move {
+      0%   { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+    @keyframes stat-pop {
+      0%,70%,100% { transform: scale(1); }
+      80%         { transform: scale(1.12); }
+      90%         { transform: scale(0.96); }
+    }
+    @keyframes section-num-glow {
+      0%,100% { opacity: 0.45; }
+      50%     { opacity: 1; }
+    }
+    @keyframes footer-big-pulse {
+      0%,100% { opacity: 0.85; transform: scale(1); }
+      50%     { opacity: 1;    transform: scale(1.03); }
+    }
+    @keyframes member-card-breathe {
+      0%,100% { transform: translateY(0);    box-shadow: 0 2px 14px rgba(0,0,0,0.07); }
+      50%     { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(180,120,40,0.18); }
+    }
+    @keyframes hue-drift {
+      0%,100% { filter: hue-rotate(0deg)  drop-shadow(0 0 12px rgba(180,120,40,0.18)); }
+      33%     { filter: hue-rotate(14deg) drop-shadow(0 0 22px rgba(180,120,40,0.36)); }
+      66%     { filter: hue-rotate(-10deg) drop-shadow(0 0 10px rgba(180,120,40,0.14)); }
+    }
+
+    /* ════════════════════════════════════════════════════
+       LOOPING ANIMATION APPLICATION
+    ════════════════════════════════════════════════════ */
+
+    /* Orbs: dramatic opacity + scale pulse so glassmorphism visibly shifts */
+    .orb-1 { animation: orb-pulse     14s ease-in-out infinite; }
+    .orb-2 { animation: orb-pulse-alt 11s ease-in-out infinite; }
+    .orb-3 { animation: orb-pulse     17s ease-in-out infinite 3s; }
+    .orb-4 { animation: orb-pulse-alt 9s  ease-in-out infinite 1.5s; }
+    .orb-5 { animation: orb-pulse     13s ease-in-out infinite 5s; }
+
+    /* Floating nav pill glow */
+    .top-nav { animation: nav-pulse 4s ease-in-out infinite; }
+
+    /* Active nav item */
+    .nav-item.active { animation: active-item-glow 2s ease-in-out infinite; }
+
+    /* Section numbers */
+    .section-num { animation: section-num-glow 3s ease-in-out infinite; }
+
+    /* Member avatars */
+    .member-avatar { animation: float-y 3s ease-in-out infinite, avatar-glow 3s ease-in-out infinite; }
+    .member-item:nth-child(2) .member-avatar { animation-delay: 1s; }
+    .member-item:nth-child(3) .member-avatar { animation-delay: 2s; }
+
+    /* Tags */
+    .tag { animation: tag-pulse 3s ease-in-out infinite; }
+    .members-row + div > .tag:nth-child(1) { animation-delay: 0s; }
+    .members-row + div > .tag:nth-child(2) { animation-delay: 0.3s; }
+    .members-row + div > .tag:nth-child(3) { animation-delay: 0.6s; }
+    .members-row + div > .tag:nth-child(4) { animation-delay: 0.9s; }
+    .members-row + div > .tag:nth-child(5) { animation-delay: 1.2s; }
+    .members-row + div > .tag:nth-child(6) { animation-delay: 1.5s; }
+
+    /* Timeline dots */
+    .timeline-item::before { animation: dot-pulse 2s ease-in-out infinite; }
+    .timeline-item:nth-child(1)::before { animation-delay: 0s; }
+    .timeline-item:nth-child(2)::before { animation-delay: 0.28s; }
+    .timeline-item:nth-child(3)::before { animation-delay: 0.56s; }
+    .timeline-item:nth-child(4)::before { animation-delay: 0.84s; }
+    .timeline-item:nth-child(5)::before { animation-delay: 1.12s; }
+    .timeline-item:nth-child(6)::before { animation-delay: 1.40s; }
+    .timeline-item:nth-child(7)::before { animation-delay: 1.68s; }
+
+    /* Badge dots */
+    .badge-dot { animation: dot-pulse 1.8s ease-in-out infinite; }
+
+    /* LC badge */
+    .lc-badge { animation: lc-badge-glow 3s ease-in-out infinite; }
+
+    /* Escrow */
+    .escrow-panel   { animation: escrow-breathe 4s ease-in-out infinite; }
+    .escrow-amount:not(.flash) { animation: amount-bounce 3s ease-in-out infinite; }
+
+    /* Footer */
+    footer .big { animation: footer-big-pulse 3s ease-in-out infinite; }
+    footer .member-item { animation: member-card-breathe 4s ease-in-out infinite; }
+    footer .member-item:nth-child(2) { animation-delay: 1.3s; }
+    footer .member-item:nth-child(3) { animation-delay: 2.6s; }
+
+    /* ════════════════════════════════════════════════════
+       LOOPING ANIMATIONS (class added by JS after entrance)
+    ════════════════════════════════════════════════════ */
+    .card.looped          { animation: card-glow 4s ease-in-out infinite; }
+    .uc-card.looped       { animation: card-glow 4s ease-in-out infinite; }
+    .col-card.looped      { animation: card-glow 4s ease-in-out infinite; }
+    .stat-tile.looped     { animation: card-glow-green 3.5s ease-in-out infinite; }
+    .stat-val.looped      { animation: stat-pop 4s ease-in-out infinite; }
+    .lc-step.looped       { animation: card-glow 5s ease-in-out infinite; }
+    .callout.looped       { animation: card-glow 5s ease-in-out infinite; }
+
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ─────────────────────────── BACKGROUND ORBS ─────────────────────────── -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="orb orb-5"></div>
+
+  <!-- ─────────────────────────── HEADER ─────────────────────────── -->
+  <div class="container">
+    <header>
+      <div class="header-tag">MTech · Blockchain Technology</div>
+      <h1>
+        <span class="line1">Smart</span>
+        <span class="line2">Contracts</span>
+      </h1>
+      <p class="header-desc">
+        Self-executing programs stored on a blockchain that enforce agreements automatically:
+        no intermediaries, no trust required, just code.
+      </p>
+
+      <p class="members-label">Presented by Consensus Syndicate</p>
+      <div class="members-row">
+        <div class="member-item">
+          <div class="member-avatar">
+            <div class="member-avatar-inner">👨‍💻</div>
+          </div>
+          <div class="member-name">
+            Kunal Kumar Dey<br>
+            <span class="member-id">2025sl93019</span>
+          </div>
+        </div>
+        <div class="member-item">
+          <div class="member-avatar">
+            <div class="member-avatar-inner">👩‍💻</div>
+          </div>
+          <div class="member-name">
+            Bhumi Budhiraja<br>
+            <span class="member-id">2025sl93024</span>
+          </div>
+        </div>
+        <div class="member-item">
+          <div class="member-avatar">
+            <div class="member-avatar-inner">👨‍🎓</div>
+          </div>
+          <div class="member-name">
+            Anurag Shrivastava<br>
+            <span class="member-id">2025sl93090</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <span class="tag tag-blue">Blockchain</span>
+        <span class="tag tag-green">Ethereum</span>
+        <span class="tag tag-green">Solidity</span>
+        <span class="tag tag-gold">DeFi</span>
+        <span class="tag tag-blue">Web3</span>
+        <span class="tag tag-gold">EVM</span>
+      </div>
+    </header>
+  </div>
+
+  <!-- ─────────────────────────── TOP NAV ─────────────────────────── -->
+  <nav class="top-nav" id="topNav">
+    <span class="nav-brand">Smart Contracts</span>
+    <div class="nav-pills" id="nav">
+      <div class="nav-item active" onclick="navTo('s1')"><span class="nav-num">1</span><span class="nav-label">Definition</span></div>
+      <div class="nav-item" onclick="navTo('s2')"><span class="nav-num">2</span><span class="nav-label">History</span></div>
+      <div class="nav-item" onclick="navTo('s3')"><span class="nav-num">3</span><span class="nav-label">How It Works</span></div>
+      <div class="nav-item" onclick="navTo('s4')"><span class="nav-num">4</span><span class="nav-label">Lifecycle</span></div>
+      <div class="nav-item" onclick="navTo('s5')"><span class="nav-num">5</span><span class="nav-label">Live Demo</span></div>
+      <div class="nav-item" onclick="navTo('s6')"><span class="nav-num">6</span><span class="nav-label">Solidity</span></div>
+      <div class="nav-item" onclick="navTo('s7')"><span class="nav-num">7</span><span class="nav-label">Use Cases</span></div>
+      <div class="nav-item" onclick="navTo('s8')"><span class="nav-num">8</span><span class="nav-label">Risks</span></div>
+      <div class="nav-item" onclick="navTo('s9')"><span class="nav-num">9</span><span class="nav-label">vs Traditional</span></div>
+      <div class="nav-item" onclick="navTo('s10')"><span class="nav-num">10</span><span class="nav-label">Statistics</span></div>
+      <div class="nav-item" onclick="navTo('s11')"><span class="nav-num">11</span><span class="nav-label">Future</span></div>
+    </div>
+  </nav>
+
+  <!-- mobile nav toggle -->
+  <button class="mob-nav-toggle" id="mobToggle" onclick="toggleNav()" title="Toggle navigation">☰</button>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleNav()"></div>
+
+  <!-- ─────────────────────────── PAGE CONTENT ─────────────────────────── -->
+  <div class="page-wrap">
+  <div class="container">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+     SECTION 1: DEFINITION
+═══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="s1">
+      <div class="section-header">
+        <span class="section-num">01 /</span>
+        <h2 class="section-title">What Is a Smart Contract?</h2>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <p style="font-size:16px;color:var(--text-body);line-height:var(--lh);margin-bottom:20px;">
+            A <strong style="color:var(--accent3)">smart contract</strong> is a self-executing program
+            stored on a blockchain. It encodes the terms of an agreement directly in code,
+            and executes them automatically when predefined conditions are met.
+            No lawyers. No banks. No manual intervention.
+          </p>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <span><strong style="color:var(--accent)">Analogy:</strong> Think of a vending machine.
+              You insert coins (condition), press a button (trigger), and the machine dispenses
+              your item (execution): automatically, every time, without a cashier.
+              A smart contract is a vending machine on a global, tamper-proof ledger.</span>
+          </div>
+
+          <div class="three-col" style="margin-top:20px;">
+            <div class="col-card">
+              <div class="col-card-title accent">🔒 Immutable</div>
+              <p>Once deployed, the contract code cannot be altered or deleted by anyone.</p>
+            </div>
+            <div class="col-card">
+              <div class="col-card-title green">🤝 Trustless</div>
+              <p>Parties don't need to trust each other: they only need to trust the code.</p>
+            </div>
+            <div class="col-card">
+              <div class="col-card-title gold">⚡ Autonomous</div>
+              <p>Execution is triggered by transactions, with no human in the loop.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+     SECTION 2: HISTORY
+═══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="s2">
+      <div class="section-header">
+        <span class="section-num">02 /</span>
+        <h2 class="section-title">A Brief History</h2>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-year">1994</div>
+              <div class="timeline-title">Nick Szabo Coins the Term</div>
+              <div class="timeline-desc">Cryptographer Nick Szabo defined "smart contracts" as computerized transaction
+                protocols executing contract terms. He compared them to vending machines: contracts embedded in
+                hardware. The infrastructure to implement them did not yet exist.</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2009</div>
+              <div class="timeline-title">Bitcoin: Programmable Transactions</div>
+              <div class="timeline-desc">Bitcoin's Script language enabled limited programmable transactions (multi-sig,
+                time-locks). It was deliberately not Turing-complete, making complex contracts impossible but reducing
+                attack surface.</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2013</div>
+              <div class="timeline-title">Ethereum Whitepaper</div>
+              <div class="timeline-desc">Vitalik Buterin published the Ethereum whitepaper, proposing a Turing-complete
+                blockchain with a general-purpose virtual machine (EVM) specifically designed to run smart contracts.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2015</div>
+              <div class="timeline-title">Ethereum Mainnet Launches</div>
+              <div class="timeline-desc">Ethereum goes live. Solidity becomes the primary language. Any developer can
+                now deploy arbitrary programs: called contracts: to a globally shared, censorship-resistant computer.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2016</div>
+              <div class="timeline-title">The DAO Hack: $60M Drained</div>
+              <div class="timeline-desc">A reentrancy bug in The DAO contract was exploited, draining 3.6M ETH. The
+                Ethereum community controversially hard-forked, creating Ethereum Classic. The incident remains the
+                defining lesson in smart contract security.</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2020</div>
+              <div class="timeline-title">DeFi Summer: $1B+ Locked</div>
+              <div class="timeline-desc">Uniswap, Aave, Compound, and Yearn bootstrap decentralised lending and trading.
+                Total Value Locked in DeFi contracts surpasses $1B for the first time: proof of real-world scale.</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2024–now</div>
+              <div class="timeline-title">Multi-Chain & Layer-2 Era</div>
+              <div class="timeline-desc">Smart contracts run on Ethereum, Solana, BNB Chain, Avalanche, and hundreds of
+                Layer-2 rollups (Arbitrum, Optimism, Base). Gas costs have dropped 100×. Enterprise adoption
+                accelerates.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+     SECTION 3: HOW IT WORKS
+═══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="s3">
+      <div class="section-header">
+        <span class="section-num">03 /</span>
+        <h2 class="section-title">How It Works</h2>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <p style="font-size:var(--fs-sm);color:var(--text-body);line-height:var(--lh);margin-bottom:4px;">
+            A smart contract goes from source code to running program through a fixed pipeline.
+            Every node on the network runs the same code and reaches the same result.
+          </p>
+
+          <div class="flow-horiz">
+            <div class="flow-node-h">
+              <div class="fn-icon">📝</div>
+              <div class="fn-label">Write Code</div>
+              <div class="fn-sub">Solidity</div>
+            </div>
+            <div class="flow-sep">→</div>
+            <div class="flow-node-h">
+              <div class="fn-icon">🔨</div>
+              <div class="fn-label">Compile</div>
+              <div class="fn-sub">Bytecode + ABI</div>
+            </div>
+            <div class="flow-sep">→</div>
+            <div class="flow-node-h">
+              <div class="fn-icon">🚀</div>
+              <div class="fn-label">Deploy</div>
+              <div class="fn-sub">Pay gas</div>
+            </div>
+            <div class="flow-sep">→</div>
+            <div class="flow-node-h">
+              <div class="fn-icon">📞</div>
+              <div class="fn-label">Call / Tx</div>
+              <div class="fn-sub">Trigger</div>
+            </div>
+            <div class="flow-sep">→</div>
+            <div class="flow-node-h">
+              <div class="fn-icon">⚙️</div>
+              <div class="fn-label">EVM Runs</div>
+              <div class="fn-sub">All nodes</div>
+            </div>
+            <div class="flow-sep">→</div>
+            <div class="flow-node-h">
+              <div class="fn-icon">✅</div>
+              <div class="fn-label">State Update</div>
+              <div class="fn-sub">Consensus</div>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div>
+              <div class="callout callout-info" style="margin-top:0;">
+                <span class="callout-icon">⛽</span>
+                <div><strong style="color:var(--accent)">Gas Model</strong><br>
+                  Every EVM opcode has a gas cost. You pay in ETH proportional to computation.
+                  This prevents infinite loops and DoS attacks on the network.</div>
+              </div>
+              <div class="equation">
+                Gas Fee <span class="op">=</span> Gas Used <span class="op">×</span> Gas Price (Gwei)
+              </div>
+            </div>
+            <div>
+              <div class="callout callout-success" style="margin-top:0;">
+                <span class="callout-icon">🏗️</span>
+                <div><strong style="color:var(--accent3)">EVM: Ethereum Virtual Machine</strong><br>
+                  A 256-bit sandboxed stack machine. Deterministic: every node computes the
+                  same output from the same input, enabling trustless global consensus.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Gas Calculator -->
+          <div class="demo-area">
+            <div class="demo-label">Interactive: Gas Calculator</div>
+            <div class="slider-row">
+              <span class="slider-label">Operations (gas units):</span>
+              <input type="range" id="gasUnits" min="21000" max="500000" step="1000" value="80000"
+                oninput="updateGas()">
+              <span class="slider-val" id="gasUnitsVal">80,000</span>
+            </div>
+            <div class="slider-row">
+              <span class="slider-label">Gas Price (Gwei):</span>
+              <input type="range" id="gasPrice" min="1" max="200" step="1" value="20" oninput="updateGas()">
+              <span class="slider-val" id="gasPriceVal">20</span>
+            </div>
+            <div style="display:flex;gap:24px;margin-top:12px;flex-wrap:wrap;">
+              <div>
+                <div
+                  style="font-size:11px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;">
+                  ETH Cost</div>
+                <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:800;color:var(--accent3)"
+                  id="ethCost">0.0016 ETH</div>
+              </div>
+              <div>
+                <div
+                  style="font-size:11px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;">
+                  USD (≈ $3400/ETH)</div>
+                <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:800;color:var(--accent4)"
+                  id="usdCost">$5.44</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+     SECTION 4: LIFECYCLE (ACCORDION)
+═══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="s4">
+      <div class="section-header">
+        <span class="section-num">04 /</span>
+        <h2 class="section-title">Contract Lifecycle</h2>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <p style="font-size:var(--fs-sm);color:var(--text-dim);margin-bottom:4px;">Click any stage to expand details.
+          </p>
+          <div class="lifecycle">
+            <div class="lc-step open" onclick="toggleLc(this)">
+              <div class="lc-badge">01</div>
+              <div class="lc-body">
+                <div class="lc-title">Write &amp; Compile</div>
+                <div class="lc-detail">Developer writes Solidity (or Vyper/Rust) code defining state variables,
+                  functions, events, and access modifiers. The compiler (solc) produces <strong
+                    style="color:var(--accent3)">bytecode</strong> (EVM instructions) and an <strong
+                    style="color:var(--accent)">ABI</strong> (Application Binary Interface): the contract's typed API
+                  for external callers.</div>
+              </div>
+              <div class="lc-arrow">›</div>
+            </div>
+            <div class="lc-step" onclick="toggleLc(this)">
+              <div class="lc-badge">02</div>
+              <div class="lc-body">
+                <div class="lc-title">Audit &amp; Test</div>
+                <div class="lc-detail">Before deployment, contracts should be rigorously tested with unit tests
+                  (Hardhat/Foundry), fuzz tested (Echidna), and ideally audited by a third-party security firm. Bugs
+                  deployed on-chain are often permanent. Tools: OpenZeppelin, Slither, Certora Prover.</div>
+              </div>
+              <div class="lc-arrow">›</div>
+            </div>
+            <div class="lc-step" onclick="toggleLc(this)">
+              <div class="lc-badge">03</div>
+              <div class="lc-body">
+                <div class="lc-title">Deploy to Blockchain</div>
+                <div class="lc-detail">A deployment transaction is signed and broadcast. The network mines it into a
+                  block. The contract receives a unique <strong style="color:var(--accent3)">address</strong>: its
+                  permanent home on the blockchain. Deployer pays gas for storing the bytecode.</div>
+              </div>
+              <div class="lc-arrow">›</div>
+            </div>
+            <div class="lc-step" onclick="toggleLc(this)">
+              <div class="lc-badge">04</div>
+              <div class="lc-body">
+                <div class="lc-title">Interact / Execute</div>
+                <div class="lc-detail">Users (EOAs) or other contracts send transactions calling specific functions. The
+                  EVM executes the bytecode on every validating node. State changes are agreed upon by consensus and
+                  written immutably to the chain. Events are emitted and logged.</div>
+              </div>
+              <div class="lc-arrow">›</div>
+            </div>
+            <div class="lc-step" onclick="toggleLc(this)">
+              <div class="lc-badge">05</div>
+              <div class="lc-body">
+                <div class="lc-title">Upgrade or Deprecate</div>
+                <div class="lc-detail">Because immutability is a core property, upgrades require patterns like <strong
+                    style="color:var(--accent)">Proxy Contracts</strong> (UUPS, Transparent Proxy) that separate logic
+                  from storage. Alternatively, a new version is deployed and users migrate. Deprecated contracts remain
+                  on-chain forever but become inactive.</div>
+              </div>
+              <div class="lc-arrow">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+     SECTION 5: INTERACTIVE ESCROW DEMO
+═══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="s5">
+      <div class="section-header">
+        <span class="section-num">05 /</span>
+        <h2 class="section-title">Interactive Demo: Escrow Contract</h2>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <p style="font-size:var(--fs-sm);color:var(--text-body);line-height:var(--lh);">
+            An escrow holds ETH from the buyer and releases it to the seller only after the buyer
+            confirms delivery. Simulate the flow below.
+          </p>
+
+          <div class="demo-area" style="margin-top:20px;">
+            <div class="demo-label">Escrow State</div>
+            <div class="escrow-grid">
+              <div class="escrow-party">
+                <div class="escrow-party-icon">🧑‍💼</div>
+                <div class="escrow-party-name">Buyer</div>
+                <div
+                  style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);margin-top:4px;">
+                  0xBuyer…A1B2</div>
+                <div id="buyerBal" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);margin-top:6px;font-weight:700;">10 ETH</div>
+              </div>
+              <div class="escrow-middle">
+                <div class="escrow-contract">
+                  <div class="escrow-contract-label">⛓ Smart Contract</div>
+                  <div class="escrow-amount" id="escrowAmt">0 ETH</div>
+                  <div class="escrow-status-row">
+                    <span class="badge badge-pending" id="escrowBadge"><span class="badge-dot pulse"></span>Awaiting
+                      Deposit</span>
+                  </div>
+                </div>
+              </div>
+              <div class="escrow-party">
+                <div class="escrow-party-icon">🏪</div>
+                <div class="escrow-party-name">Seller</div>
+                <div
+                  style="font-size:11px;color:var(--text-dim);margin-top:4px;font-family:'JetBrains Mono',monospace;">
+                  0xSeller…C3D4</div>
+                <div id="sellerBal" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);margin-top:6px;font-weight:700;">0 ETH</div>
+              </div>
+            </div>
+
+            <!-- ── BLOCKCHAIN VISUALIZATION ── -->
+            <div class="demo-label" style="margin-top:20px;">Blockchain</div>
+            <div class="chain-row" id="chainRow">
+              <!-- blocks injected by JS -->
+            </div>
+
+            <div id="escrowLog"
+              style="background:#1a1410;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.10);border-radius:10px;padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#c8bfb0;min-height:72px;margin:16px 0;line-height:2;">
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn" id="btnDeposit" onclick="escrowDeposit()">⬆ Buyer Deposits 2 ETH</button>
+              <button class="btn btn-green" id="btnConfirm" onclick="escrowConfirm()" disabled>✓ Confirm
+                Delivery</button>
+              <button class="btn btn-red" id="btnRefund" onclick="escrowRefund()" disabled>↩ Refund</button>
+              <button class="btn" onclick="escrowReset()"
+                style="border-color:rgba(255,255,255,0.15);color:var(--text-muted);">↺ Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+     SECTION 6: SOLIDITY CODE
+═══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="s6">
+      <div class="section-header">
+        <span class="section-num">06 /</span>
+        <h2 class="section-title">Solidity Code Walkthrough</h2>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <p style="font-size:var(--fs-sm);color:var(--text-body);line-height:var(--lh);">
+            The actual Solidity code for the escrow contract demonstrated above.
+          </p>
+          <div class="code-block"><span class="cm">// SPDX-License-Identifier: MIT</span>
+<span class="kw">pragma</span> solidity ^<span class="num">0.8.20</span>;
+
+<span class="cm">/**
+ * @title SimpleEscrow
+ * @notice Buyer deposits ETH; released to seller on delivery confirmation.
+ *         Buyer can also reclaim funds before confirmation.
+ */</span>
+<span class="kw">contract</span> <span class="fn">SimpleEscrow</span> {
+
+    <span class="cm">// ── State ──────────────────────────────────────────────</span>
+    <span class="type">address</span> <span class="kw">public immutable</span> buyer;
+    <span class="type">address</span> <span class="kw">public immutable</span> seller;
+    <span class="type">uint256</span> <span class="kw">public</span> amount;
+    <span class="type">bool</span>    <span class="kw">public</span> released;
+
+    <span class="cm">// ── Events ─────────────────────────────────────────────</span>
+    <span class="kw">event</span> <span class="fn">Deposited</span>(<span class="type">address indexed</span> buyer,  <span class="type">uint256</span> amount);
+    <span class="kw">event</span> <span class="fn">Released</span> (<span class="type">address indexed</span> seller, <span class="type">uint256</span> amount);
+    <span class="kw">event</span> <span class="fn">Refunded</span> (<span class="type">address indexed</span> buyer,  <span class="type">uint256</span> amount);
+
+    <span class="cm">// ── Constructor ────────────────────────────────────────</span>
+    <span class="kw">constructor</span>(<span class="type">address</span> _seller) <span class="kw">payable</span> {
+        <span class="kw">require</span>(<span class="type">msg.value</span> > <span class="num">0</span>, <span class="str">"Must deposit ETH"</span>);
+        buyer  = <span class="type">msg.sender</span>;
+        seller = _seller;
+        amount = <span class="type">msg.value</span>;
+        <span class="kw">emit</span> <span class="fn">Deposited</span>(buyer, amount);
+    }
+
+    <span class="cm">// ── Modifiers ──────────────────────────────────────────</span>
+    <span class="kw">modifier</span> <span class="fn">onlyBuyer</span>()   { <span class="kw">require</span>(<span class="type">msg.sender</span> == buyer, <span class="str">"Not buyer"</span>); _; }
+    <span class="kw">modifier</span> <span class="fn">notReleased</span>() { <span class="kw">require</span>(!released, <span class="str">"Done"</span>); _; }
+
+    <span class="cm">// ── Functions ──────────────────────────────────────────</span>
+
+    <span class="cm">/// @notice Buyer confirms goods received; funds go to seller</span>
+    <span class="kw">function</span> <span class="fn">confirmDelivery</span>() <span class="kw">external</span> <span class="fn">onlyBuyer</span> <span class="fn">notReleased</span> {
+        released = <span class="kw">true</span>;
+        <span class="kw">payable</span>(seller).<span class="fn">transfer</span>(amount);
+        <span class="kw">emit</span> <span class="fn">Released</span>(seller, amount);
+    }
+
+    <span class="cm">/// @notice Buyer reclaims funds before delivery is confirmed</span>
+    <span class="kw">function</span> <span class="fn">refund</span>() <span class="kw">external</span> <span class="fn">onlyBuyer</span> <span class="fn">notReleased</span> {
+        released = <span class="kw">true</span>;
+        <span class="kw">payable</span>(buyer).<span class="fn">transfer</span>(amount);
+        <span class="kw">emit</span> <span class="fn">Refunded</span>(buyer, amount);
+    }
+}</div>
+
+          <div class="two-col">
+            <div class="callout callout-info" style="margin-top:0;">
+              <span class="callout-icon">🔑</span>
+              <div><strong style="color:var(--accent)">Modifiers</strong>: <code>onlyBuyer</code> and
+                <code>notReleased</code> are reusable access-control guards. They revert the transaction before any
+                state changes if conditions fail.</div>
+            </div>
+            <div class="callout callout-success" style="margin-top:0;">
+              <span class="callout-icon">📡</span>
+              <div><strong style="color:var(--accent3)">Events</strong>: emitted to the EVM log for cheap, indexed,
+                off-chain listening. dApps subscribe to events instead of polling state.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+     SECTION 7: USE CASES
+═══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="s7">
+      <div class="section-header">
+        <span class="section-num">07 /</span>
+        <h2 class="section-title">Real-World Use Cases</h2>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="uc-grid">
+            <div class="uc-card">
+              <div class="uc-icon">💱</div>
+              <div class="uc-name">DeFi</div>
+              <div class="uc-desc">Lending (Aave), DEX trading (Uniswap), yield farming. $100B+ TVL.</div>
+            </div>
+            <div class="uc-card">
+              <div class="uc-icon">🖼️</div>
+              <div class="uc-name">NFTs</div>
+              <div class="uc-desc">ERC-721 contracts enforce provably scarce digital ownership and creator royalties.
+              </div>
+            </div>
+            <div class="uc-card">
+              <div class="uc-icon">📦</div>
+              <div class="uc-name">Supply Chain</div>
+              <div class="uc-desc">Walmart &amp; Maersk trace provenance and automate payment on delivery.</div>
+            </div>
+            <div class="uc-card">
+              <div class="uc-icon">🗳️</div>
+              <div class="uc-name">DAO Voting</div>
+              <div class="uc-desc">On-chain governance for DAOs: transparent, tamper-proof, auditable.</div>
+            </div>
+            <div class="uc-card">
+              <div class="uc-icon">🏥</div>
+              <div class="uc-name">Healthcare</div>
+              <div class="uc-desc">Patient consent management and automated insurance claim settlement.</div>
+            </div>
+            <div class="uc-card">
+              <div class="uc-icon">🏠</div>
+              <div class="uc-name">Real Estate</div>
+              <div class="uc-desc">Tokenized property, automated rental agreements, tamper-proof title.</div>
+            </div>
+            <div class="uc-card">
+              <div class="uc-icon">🎮</div>
+              <div class="uc-name">Gaming</div>
+              <div class="uc-desc">Play-to-earn economies where in-game assets are truly owned by players.</div>
+            </div>
+            <div class="uc-card">
+              <div class="uc-icon">📋</div>
+              <div class="uc-name">Insurance</div>
+              <div class="uc-desc">Parametric insurance auto-pays on oracle-verified events (weather, flight delay).
+              </div>
+            </div>
+            <div class="uc-card">
+              <div class="uc-icon">💼</div>
+              <div class="uc-name">Payroll</div>
+              <div class="uc-desc">Cross-border salary streaming in real-time, second by second, without banks.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+     SECTION 8: RISKS & CHALLENGES
+═══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="s8">
+      <div class="section-header">
+        <span class="section-num">08 /</span>
+        <h2 class="section-title">Risks &amp; Challenges</h2>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="two-col">
+            <div>
+              <div class="col-card-title green" style="margin-bottom:12px;">✅ Strengths</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div class="callout callout-success" style="margin:0;padding:10px 14px;">
+                  <span class="callout-icon" style="font-size:14px;">⚡</span>
+                  <span style="font-size:13px;">No intermediary: lower cost &amp; faster settlement</span>
+                </div>
+                <div class="callout callout-success" style="margin:0;padding:10px 14px;">
+                  <span class="callout-icon" style="font-size:14px;">🌍</span>
+                  <span style="font-size:13px;">Borderless: anyone with a wallet can interact</span>
+                </div>
+                <div class="callout callout-success" style="margin:0;padding:10px 14px;">
+                  <span class="callout-icon" style="font-size:14px;">🔍</span>
+                  <span style="font-size:13px;">Transparent: all code and transactions are public</span>
+                </div>
+                <div class="callout callout-success" style="margin:0;padding:10px 14px;">
+                  <span class="callout-icon" style="font-size:14px;">🛡️</span>
+                  <span style="font-size:13px;">Censorship-resistant: no single point of control</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="col-card-title red" style="margin-bottom:12px;">❌ Risks</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div class="callout callout-danger" style="margin:0;padding:10px 14px;">
+                  <span class="callout-icon" style="font-size:14px;">🐛</span>
+                  <span style="font-size:13px;">Bugs are permanent: no patch after deployment</span>
+                </div>
+                <div class="callout callout-danger" style="margin:0;padding:10px 14px;">
+                  <span class="callout-icon" style="font-size:14px;">🔮</span>
+                  <span style="font-size:13px;">Oracle problem: trusting real-world data feeds</span>
+                </div>
+                <div class="callout callout-danger" style="margin:0;padding:10px 14px;">
+                  <span class="callout-icon" style="font-size:14px;">⚖️</span>
+                  <span style="font-size:13px;">Legal grey area: jurisdiction recognition varies</span>
+                </div>
+                <div class="callout callout-warn" style="margin:0;padding:10px 14px;">
+                  <span class="callout-icon" style="font-size:14px;">⛽</span>
+                  <span style="font-size:13px;">Gas cost spikes during network congestion</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout callout-danger" style="margin-top:20px;">
+            <span class="callout-icon">⚠️</span>
+            <div>
+              <strong style="color:var(--accent2)">Case Study: The DAO Hack (2016)</strong><br>
+              A <strong>reentrancy vulnerability</strong> allowed an attacker to recursively call the
+              withdrawal function before the balance was updated, draining 3.6M ETH (~$60M).
+              The exploit led to Ethereum's first hard fork and created Ethereum Classic.
+              It is the canonical lesson: audit before you deploy, because immutability cuts both ways.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+     SECTION 9: SMART vs TRADITIONAL
+═══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="s9">
+      <div class="section-header">
+        <span class="section-num">09 /</span>
+        <h2 class="section-title">Smart vs. Traditional Contracts</h2>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <table class="prop-table">
+            <thead>
+              <tr>
+                <th>Aspect</th>
+                <th style="color:var(--text-muted)">Traditional Contract</th>
+                <th style="color:var(--accent3)">Smart Contract</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Execution</td>
+                <td>Manual: requires human action</td>
+                <td>Automatic: triggered by code conditions</td>
+              </tr>
+              <tr>
+                <td>Intermediary</td>
+                <td>Lawyers, banks, courts required</td>
+                <td>None: the code is the law</td>
+              </tr>
+              <tr>
+                <td>Cost</td>
+                <td>High legal &amp; administrative fees</td>
+                <td>Gas fees only (cents to a few dollars)</td>
+              </tr>
+              <tr>
+                <td>Speed</td>
+                <td>Days to weeks to settle</td>
+                <td>Seconds to minutes</td>
+              </tr>
+              <tr>
+                <td>Transparency</td>
+                <td>Private: parties only</td>
+                <td>Public: anyone can audit on-chain</td>
+              </tr>
+              <tr>
+                <td>Immutability</td>
+                <td>Modifiable by mutual agreement</td>
+                <td>Immutable after deployment (by default)</td>
+              </tr>
+              <tr>
+                <td>Error Handling</td>
+                <td>Courts, arbitration, litigation</td>
+                <td>Extremely difficult post-deployment</td>
+              </tr>
+              <tr>
+                <td>Jurisdiction</td>
+                <td>Bound by local law</td>
+                <td>Borderless: runs on global ledger</td>
+              </tr>
+              <tr>
+                <td>Enforcement</td>
+                <td>Relies on legal system</td>
+                <td>Enforced by cryptography and consensus</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+     SECTION 10: STATISTICS
+═══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="s10">
+      <div class="section-header">
+        <span class="section-num">10 /</span>
+        <h2 class="section-title">Adoption by the Numbers</h2>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="stat-row">
+            <div class="stat-tile">
+              <div class="stat-val">$100B+</div>
+              <div class="stat-lbl">Total Value Locked in DeFi</div>
+            </div>
+            <div class="stat-tile">
+              <div class="stat-val">1M+</div>
+              <div class="stat-lbl">Verified Contracts on Ethereum</div>
+            </div>
+            <div class="stat-tile">
+              <div class="stat-val">10K+</div>
+              <div class="stat-lbl">Active dApps Globally</div>
+            </div>
+            <div class="stat-tile">
+              <div class="stat-val">$180B</div>
+              <div class="stat-lbl">Cumulative NFT Volume</div>
+            </div>
+          </div>
+
+          <div class="two-col" style="margin-top:20px;">
+            <div class="col-card">
+              <div class="col-card-title accent">Leading Platforms</div>
+              <div style="margin-top:6px;">
+                <span class="tag tag-blue">Ethereum</span>
+                <span class="tag tag-green">Solana</span>
+                <span class="tag tag-gold">BNB Chain</span>
+                <span class="tag tag-blue">Polygon</span>
+                <span class="tag tag-green">Avalanche</span>
+                <span class="tag tag-gold">Arbitrum</span>
+                <span class="tag tag-blue">Optimism</span>
+                <span class="tag tag-green">Base</span>
+                <span class="tag tag-gold">Cardano</span>
+              </div>
+            </div>
+            <div class="col-card">
+              <div class="col-card-title green">WEF Prediction</div>
+              <p>The World Economic Forum estimated that by 2027, approximately <strong style="color:var(--accent3)">10%
+                  of global GDP</strong> would be stored or transacted via blockchain-based systems: smart contracts
+                are the programmable layer making this meaningful.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+     SECTION 11: FUTURE
+═══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="s11">
+      <div class="section-header">
+        <span class="section-num">11 /</span>
+        <h2 class="section-title">The Road Ahead</h2>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="two-col">
+            <div class="col-card">
+              <div class="col-card-title accent">🤖 AI + Smart Contracts</div>
+              <p>AI agents autonomously deploy, call, and manage contracts: self-governing protocols that adapt to
+                market conditions without human instruction. Projects like Autonolas and agent-based DeFi are early
+                examples.</p>
+            </div>
+            <div class="col-card">
+              <div class="col-card-title green">🌉 Cross-Chain</div>
+              <p>Protocols like Polkadot, Cosmos IBC, and LayerZero enable contracts to communicate across blockchains,
+                unlocking composability at a global scale beyond any single chain.</p>
+            </div>
+            <div class="col-card">
+              <div class="col-card-title gold">⚖️ Legal Recognition</div>
+              <p>Wyoming, Arizona, and other jurisdictions are enacting legislation giving smart contracts legal
+                standing: bridging on-chain code with real-world enforceability and dispute resolution.</p>
+            </div>
+            <div class="col-card">
+              <div class="col-card-title red">🔐 Formal Verification</div>
+              <p>Mathematically proving contract correctness before deployment via tools like Certora Prover, Echidna,
+                and Halmos: eliminating entire classes of bugs at design time rather than finding them post-exploit.
+              </p>
+            </div>
+          </div>
+
+          <div class="callout callout-success" style="margin-top:20px;">
+            <span class="callout-icon">🔮</span>
+            <div>
+              <strong style="color:var(--accent3)">Account Abstraction (EIP-4337)</strong> removes the distinction
+              between user accounts and contracts: enabling gas-sponsored transactions, social recovery wallets, and
+              batch operations. This will make smart contracts invisible to end users, massively accelerating mainstream
+              adoption.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+
+  <!-- ─────────────────────────── FOOTER ─────────────────────────── -->
+  <div class="container">
+    <footer>
+      <div class="big">Thank You</div>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:32px;">
+        <div class="footer-member-card">
+          <div style="font-size:1.5rem;margin-bottom:8px;">👨‍💻</div>
+          <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:700;color:var(--text);">
+            Kunal Kumar Dey</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);margin-top:3px;">
+            2025sl93019</div>
+        </div>
+        <div class="footer-member-card">
+          <div style="font-size:1.5rem;margin-bottom:8px;">👩‍💻</div>
+          <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:700;color:var(--text);">
+            Bhumi Budhiraja</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);margin-top:3px;">
+            2025sl93024</div>
+        </div>
+        <div class="footer-member-card">
+          <div style="font-size:1.5rem;margin-bottom:8px;">👨‍🎓</div>
+          <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:700;color:var(--text);">
+            Anurag Shrivastava</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);margin-top:3px;">
+            2025sl93090</div>
+        </div>
+      </div>
+    </footer>
+  </div><!-- /container -->
+  </div><!-- /page-wrap -->
+
+  <script>
+    /* ── SCROLL ANIMATIONS ── */
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('visible');
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.section').forEach(s => observer.observe(s));
+
+    /* ── LOOPING ANIMATIONS (start after entrance finishes) ── */
+    const loopTargets = '.card,.uc-card,.col-card,.stat-tile,.timeline-item,.lc-step,.callout,.flow-node-h';
+    document.addEventListener('animationend', function(e) {
+      const el = e.target;
+      if (el.matches && el.matches(loopTargets) && !el.classList.contains('looped')) {
+        el.classList.add('looped');
+        /* also activate children that have no entrance anim of their own */
+        el.querySelectorAll('.stat-val').forEach(v => v.classList.add('looped'));
+      }
+    }, true);
+
+    /* ── TOP NAV HIGHLIGHT ── */
+    const sections = document.querySelectorAll('.section');
+    const navItems = document.querySelectorAll('.nav-item');
+
+    function setActiveItem(idx) {
+      navItems.forEach((item, i) => {
+        item.classList.remove('active', 'done');
+        if (i === idx) item.classList.add('active');
+        if (i < idx)   item.classList.add('done');
+      });
+      /* scroll the active item into view within the sidebar nav list */
+      const activeItem = navItems[idx];
+      if (activeItem) {
+        activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+
+    const topNav = document.getElementById('topNav');
+    const mobToggle = document.getElementById('mobToggle');
+
+    function updateNavVisibility() {
+      if (window.scrollY > 80) {
+        topNav.classList.add('nav-visible');
+        mobToggle.style.opacity = '1';
+        mobToggle.style.pointerEvents = 'auto';
+      } else {
+        topNav.classList.remove('nav-visible');
+        mobToggle.style.opacity = '0';
+        mobToggle.style.pointerEvents = 'none';
+      }
+    }
+    window.addEventListener('scroll', updateNavVisibility, { passive: true });
+    updateNavVisibility();
+
+    window.addEventListener('scroll', () => {
+      let cur = 0;
+      sections.forEach((s, i) => {
+        const rect = s.getBoundingClientRect();
+        if (rect.top <= window.innerHeight * 0.30) cur = i;
+      });
+      setActiveItem(cur);
+    }, { passive: true });
+
+    function navTo(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const top = el.getBoundingClientRect().top + window.scrollY - 72;
+      window.scrollTo({ top, behavior: 'smooth' });
+      /* close nav on mobile after navigation */
+      if (window.innerWidth <= 780 && document.getElementById('topNav').classList.contains('open')) {
+        toggleNav();
+      }
+    }
+
+    /* ── MOBILE NAV TOGGLE ── */
+    function toggleNav() {
+      const nav     = document.getElementById('topNav');
+      const overlay = document.getElementById('sidebarOverlay');
+      const btn     = document.getElementById('mobToggle');
+      const isOpen  = nav.classList.toggle('open');
+      overlay.classList.toggle('visible', isOpen);
+      btn.textContent = isOpen ? '✕' : '☰';
+    }
+
+    /* ── GAS CALCULATOR ── */
+    function updateGas() {
+      const units = +document.getElementById('gasUnits').value;
+      const price = +document.getElementById('gasPrice').value;
+      const eth = (units * price * 1e-9).toFixed(6);
+      const usd = (eth * 3400).toFixed(2);
+      document.getElementById('gasUnitsVal').textContent = units.toLocaleString();
+      document.getElementById('gasPriceVal').textContent = price;
+      document.getElementById('ethCost').textContent = eth + ' ETH';
+      document.getElementById('usdCost').textContent = '$' + usd;
+      calcGas();
+    }
+
+    /* ── LIFECYCLE ACCORDION ── */
+    function toggleLc(el) {
+      const was = el.classList.contains('open');
+      document.querySelectorAll('.lc-step').forEach(s => s.classList.remove('open'));
+      if (!was) el.classList.add('open');
+    }
+
+    /* ── BUTTON RIPPLE ── */
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        const r = document.createElement('span');
+        r.className = 'ripple-el';
+        const rect = this.getBoundingClientRect();
+        r.style.left = (e.clientX - rect.left - 4) + 'px';
+        r.style.top  = (e.clientY - rect.top  - 4) + 'px';
+        this.appendChild(r);
+        r.addEventListener('animationend', () => r.remove());
+      });
+    });
+
+    /* ── ESCROW AMOUNT FLASH ── */
+    function flashAmount() {
+      const el = document.getElementById('escrowAmt');
+      el.classList.remove('flash');
+      void el.offsetWidth; // reflow to restart animation
+      el.classList.add('flash');
+      el.addEventListener('animationend', () => el.classList.remove('flash'), { once: true });
+    }
+
+    /* ── STAT COUNT-UP ── */
+    const statTargets = [
+      { id: null, raw: '$100B+', prefix: '$', suffix: 'B+', value: 100 },
+      { id: null, raw: '1M+',   prefix: '',  suffix: 'M+', value: 1   },
+      { id: null, raw: '10K+',  prefix: '',  suffix: 'K+', value: 10  },
+      { id: null, raw: '$180B', prefix: '$', suffix: 'B',  value: 180 },
+    ];
+    let statAnimated = false;
+
+    function animateStats() {
+      if (statAnimated) return;
+      const tiles = document.querySelectorAll('.stat-val');
+      if (!tiles.length) return;
+      statAnimated = true;
+      tiles.forEach((tile, i) => {
+        const t = statTargets[i];
+        if (!t) return;
+        const dur = 1200;
+        const start = performance.now();
+        function tick(now) {
+          const prog = Math.min(1, (now - start) / dur);
+          const eased = 1 - Math.pow(1 - prog, 3);
+          const cur = Math.round(eased * t.value);
+          tile.textContent = t.prefix + cur + t.suffix;
+          if (prog < 1) requestAnimationFrame(tick);
+          else tile.textContent = t.raw;
+        }
+        setTimeout(() => requestAnimationFrame(tick), i * 120);
+      });
+    }
+
+    /* Watch the stats section to trigger count-up */
+    const statsSection = document.getElementById('s10');
+    if (statsSection) {
+      const statsObs = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) { animateStats(); statsObs.disconnect(); }
+      }, { threshold: 0.25 });
+      statsObs.observe(statsSection);
+    }
+
+    /* ── ESCROW DEMO ── */
+    let escrowState = 0; // 0=empty 1=deposited 2=done
+    let blockNum = 18432890;
+
+    function randHash() {
+      const h = '0123456789abcdef';
+      let s = '0x';
+      for (let i = 0; i < 8; i++) s += h[Math.floor(Math.random() * 16)];
+      return s + '…';
+    }
+
+    function addBlock(action, gasUsed, type) {
+      const row = document.getElementById('chainRow');
+      blockNum++;
+      const arrow = document.createElement('div');
+      arrow.className = 'chain-arrow';
+      arrow.innerHTML = '←';
+      row.appendChild(arrow);
+      const blk = document.createElement('div');
+      blk.className = 'chain-block pending';
+      blk.innerHTML = `
+        <div class="block-num">BLOCK #${blockNum.toLocaleString()}</div>
+        <div class="block-action">${action}</div>
+        <div class="block-hash">TX: ${randHash()}</div>
+        <div class="block-hash">← ${randHash()}</div>
+        <div class="block-gas">Gas: ${gasUsed.toLocaleString()} units</div>
+        <div class="block-status wait">⏳ Mining…</div>`;
+      row.appendChild(blk);
+      row.scrollLeft = row.scrollWidth;
+      setTimeout(() => {
+        blk.classList.remove('pending');
+        blk.classList.add(type === 'refund' ? 'refunded' : 'confirmed');
+        blk.querySelector('.block-status').className = `block-status ${type === 'refund' ? 'ref' : 'ok'}`;
+        blk.querySelector('.block-status').textContent = type === 'refund' ? '↩ Refunded' : '✓ Confirmed';
+        row.scrollLeft = row.scrollWidth;
+      }, 1400);
+    }
+
+    function log(msg) {
+      const el = document.getElementById('escrowLog');
+      const ts = new Date().toLocaleTimeString();
+      el.innerHTML += `<span style="color:#6a6058">[${ts}]</span> ${msg}<br>`;
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function setBadge(cls, dot, txt) {
+      const b = document.getElementById('escrowBadge');
+      b.className = 'badge ' + cls;
+      b.innerHTML = `<span class="badge-dot ${dot}"></span>${txt}`;
+    }
+
+    function escrowDeposit() {
+      if (escrowState !== 0) return;
+      escrowState = 1;
+      document.getElementById('escrowAmt').textContent = '2 ETH';
+      document.getElementById('buyerBal').textContent = '8 ETH';
+      document.getElementById('buyerBal').style.color = 'var(--accent2)';
+      flashAmount();
+      setBadge('badge-pending', 'pulse', 'Funds Locked');
+      document.getElementById('btnDeposit').disabled = true;
+      document.getElementById('btnConfirm').disabled = false;
+      document.getElementById('btnRefund').disabled = false;
+      addBlock('Deposit 2 ETH', 46000, 'confirm');
+      log('<span style="color:var(--accent3)">✓ Tx mined</span>: Buyer deposited <strong style="color:var(--accent3)">2 ETH</strong> into contract. Waiting for delivery...');
+    }
+
+    function escrowConfirm() {
+      if (escrowState !== 1) return;
+      escrowState = 2;
+      document.getElementById('escrowAmt').textContent = '0 ETH';
+      document.getElementById('sellerBal').textContent = '2 ETH';
+      document.getElementById('sellerBal').style.color = 'var(--accent3)';
+      flashAmount();
+      setBadge('badge-valid', '', 'Released ✓');
+      document.getElementById('btnConfirm').disabled = true;
+      document.getElementById('btnRefund').disabled = true;
+      addBlock('Confirm Delivery', 31000, 'confirm');
+      log('<span style="color:var(--accent3)">✓ Tx mined</span>: Buyer confirmed delivery. <strong style="color:var(--accent3)">2 ETH transferred to Seller</strong>. Contract complete.');
+    }
+
+    function escrowRefund() {
+      if (escrowState !== 1) return;
+      escrowState = 2;
+      document.getElementById('escrowAmt').textContent = '0 ETH';
+      document.getElementById('buyerBal').textContent = '10 ETH';
+      document.getElementById('buyerBal').style.color = 'var(--accent3)';
+      flashAmount();
+      setBadge('badge-invalid', '', 'Refunded');
+      document.getElementById('btnConfirm').disabled = true;
+      document.getElementById('btnRefund').disabled = true;
+      addBlock('Refund Buyer', 29000, 'refund');
+      log('<span style="color:var(--accent2)">↩ Tx mined</span>: Buyer requested refund. <strong style="color:var(--accent2)">2 ETH returned to Buyer</strong>. Contract closed.');
+    }
+
+    function escrowReset() {
+      escrowState = 0;
+      blockNum = 18432890;
+      document.getElementById('escrowAmt').textContent = '0 ETH';
+      document.getElementById('buyerBal').textContent = '10 ETH';
+      document.getElementById('buyerBal').style.color = 'var(--accent)';
+      document.getElementById('sellerBal').textContent = '0 ETH';
+      document.getElementById('sellerBal').style.color = 'var(--text-dim)';
+      document.getElementById('escrowLog').innerHTML = '';
+      setBadge('badge-pending', 'pulse', 'Awaiting Deposit');
+      document.getElementById('btnDeposit').disabled = false;
+      document.getElementById('btnConfirm').disabled = true;
+      document.getElementById('btnRefund').disabled = true;
+      document.getElementById('chainRow').innerHTML = `
+        <div class="chain-block genesis">
+          <div class="block-num">BLOCK #${blockNum.toLocaleString()}</div>
+          <div class="block-action">Genesis</div>
+          <div class="block-hash">TX: 0x000000…</div>
+          <div class="block-hash">← 0x000000…</div>
+          <div class="block-gas">Contract deployed</div>
+          <div class="block-status ok">✓ Confirmed</div>
+        </div>`;
+    }
+
+    escrowReset();
+  </script>
+</body>
+
+</html>
